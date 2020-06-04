@@ -1,5 +1,6 @@
 package com.battleshippark.socialloginsample
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.battleshippark.socialloginsample.databinding.ActivityMainBinding
@@ -13,6 +14,8 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.facebook.setOnClickListener { }
+        binding.facebook.setOnClickListener {
+            startActivity(Intent(this, FacebookActivity::class.java))
+        }
     }
 }
