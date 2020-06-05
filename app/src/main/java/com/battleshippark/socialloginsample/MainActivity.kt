@@ -17,5 +17,9 @@ class MainActivity : AppCompatActivity() {
         binding.facebook.setOnClickListener {
             startActivity(Intent(this, FacebookActivity::class.java))
         }
+
+        binding.google.setOnClickListener {
+            startActivity(Intent(this, GoogleActivity::class.java))
+        }
     }
 }
