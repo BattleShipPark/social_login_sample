@@ -32,6 +32,7 @@ class GoogleActivity : AppCompatActivity(), View.OnClickListener {
 
         binding.signInButton.setOnClickListener(this)
         binding.signOutButton.setOnClickListener(this)
+        binding.disconnectButton.setOnClickListener(this)
     }
 
     override fun onStart() {
@@ -42,6 +43,7 @@ class GoogleActivity : AppCompatActivity(), View.OnClickListener {
 
     private fun updateUI(account: GoogleSignInAccount?) {
         account ?: return
+        Log.i("SocialLogin", account.id)
         Log.i("SocialLogin", account.email)
         Log.i("SocialLogin", account.displayName)
     }
@@ -50,7 +52,15 @@ class GoogleActivity : AppCompatActivity(), View.OnClickListener {
         when (v?.id) {
             R.id.sign_in_button -> signIn()
             R.id.sign_out_button -> signOut()
+            R.id.disconnect_button -> disconnect()
         }
+    }
+
+    private fun disconnect() {
+        googleSignInClient.revokeAccess()
+            .addOnCompleteListener(this) {
+                Log.i("SocialLogin", "disconnect")
+            }
     }
 
     private fun signOut() {
