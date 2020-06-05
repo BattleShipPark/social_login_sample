@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "87837641189",
+    "firebase_url": "https://social-login-sam-1591263626760.firebaseio.com",
+    "project_id": "social-login-sam-1591263626760",
+    "storage_bucket": "social-login-sam-1591263626760.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:87837641189:android:31247f2b925401d73cc70c",
+        "android_client_info": {
+          "package_name": "com.battleshippark.socialloginsample"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "87837641189-cj2mtaq8riiil9ov3h95qkogqmr9tpgr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.battleshippark.socialloginsample",
+            "certificate_hash": "825fe677e2485fdf53ab87a30f6f5456464818cd"
+          }
+        },
+        {
+          "client_id": "87837641189-7mqsh9pve0rl6kcf7qg5a6ahn0p79q10.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCKtSpB5WhHbswdpkx4Mnex7dkLaaAwRaU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "87837641189-7mqsh9pve0rl6kcf7qg5a6ahn0p79q10.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

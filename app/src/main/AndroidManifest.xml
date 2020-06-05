@@ -11,6 +11,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".FirebaseAuthActivity"></activity>
         <activity android:name=".GoogleActivity" />
         <activity android:name=".FacebookActivity" />
         <activity android:name=".MainActivity">

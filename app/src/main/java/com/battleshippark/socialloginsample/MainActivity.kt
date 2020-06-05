@@ -21,5 +21,9 @@ class MainActivity : AppCompatActivity() {
         binding.google.setOnClickListener {
             startActivity(Intent(this, GoogleActivity::class.java))
         }
+
+        binding.firebaseAuth.setOnClickListener {
+            startActivity(Intent(this, FirebaseAuthActivity::class.java))
+        }
     }
 }
