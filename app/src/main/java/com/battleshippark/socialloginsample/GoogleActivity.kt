@@ -31,6 +31,7 @@ class GoogleActivity : AppCompatActivity(), View.OnClickListener {
         googleSignInClient = GoogleSignIn.getClient(this, gso)
 
         binding.signInButton.setOnClickListener(this)
+        binding.signOutButton.setOnClickListener(this)
     }
 
     override fun onStart() {
@@ -46,6 +47,20 @@ class GoogleActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     override fun onClick(v: View?) {
+        when (v?.id) {
+            R.id.sign_in_button -> signIn()
+            R.id.sign_out_button -> signOut()
+        }
+    }
+
+    private fun signOut() {
+        googleSignInClient.signOut()
+            .addOnCompleteListener(this) {
+                Log.i("SocialLogin", "sign out")
+            }
+    }
+
+    private fun signIn() {
         val signInIntent: Intent = googleSignInClient.signInIntent
         startActivityForResult(signInIntent, RC_SIGN_IN)
     }
