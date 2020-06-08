@@ -29,5 +29,23 @@
             android:text="Facebook Login"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/google_login" />
+
+        <Button
+            android:id="@+id/google_link"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:text="Google Link"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/facebook_login" />
+
+        <Button
+            android:id="@+id/google_unlink"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:text="Google Unlink"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/google_link" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

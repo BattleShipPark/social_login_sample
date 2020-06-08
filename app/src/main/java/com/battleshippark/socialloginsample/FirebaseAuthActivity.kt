@@ -38,6 +38,8 @@ class FirebaseAuthActivity : AppCompatActivity(), View.OnClickListener {
 
         binding.googleLogin.setOnClickListener(this)
         binding.facebookLogin.setOnClickListener(this)
+        binding.googleLink.setOnClickListener(this)
+        binding.googleUnlink.setOnClickListener(this)
 
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(getString(R.string.default_web_client_id))
@@ -69,7 +71,24 @@ class FirebaseAuthActivity : AppCompatActivity(), View.OnClickListener {
         when (v?.id) {
             R.id.google_login -> googleLogin()
             R.id.facebook_login -> facebookLogin()
+            R.id.google_link -> googleLink()
+            R.id.google_unlink -> googleUnlink()
         }
+    }
+
+    private fun googleUnlink() {
+        auth.currentUser?.unlink(GoogleAuthProvider.PROVIDER_ID)
+            ?.addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    val currentUser: FirebaseUser? = auth.currentUser
+                    updateUI(currentUser)
+                }
+            }
+    }
+
+    private fun googleLink() {
+        val signInIntent: Intent = googleSignInClient.signInIntent
+        startActivityForResult(signInIntent, RC_LINK)
     }
 
     private fun facebookLogin() {
@@ -88,16 +107,43 @@ class FirebaseAuthActivity : AppCompatActivity(), View.OnClickListener {
         if (requestCode == RC_SIGN_IN) {
             val task: Task<GoogleSignInAccount> = GoogleSignIn.getSignedInAccountFromIntent(data)
             val account = task.getResult(ApiException::class.java)
-            firebaseAuthWithGoogle(account)
+            firebaseAuthWithGoogleSignIn(account)
+        } else if (requestCode == RC_LINK) {
+            val task: Task<GoogleSignInAccount> = GoogleSignIn.getSignedInAccountFromIntent(data)
+            val account = task.getResult(ApiException::class.java)
+            firebaseAuthWithGoogleLink(account)
         } else {
             callbackManager.onActivityResult(requestCode, resultCode, data)
         }
     }
 
-    private fun firebaseAuthWithGoogle(acct: GoogleSignInAccount?) {
+    private fun firebaseAuthWithGoogleLink(acct: GoogleSignInAccount?) {
         acct ?: return
 
-        Log.i(TAG, "firebaseAuthWithGoogle:" + acct.id)
+        Log.i(TAG, "firebaseAuthWithGoogleLink:" + acct.id)
+
+        val credential = GoogleAuthProvider.getCredential(acct.idToken, null)
+        auth.currentUser?.linkWithCredential(credential)
+            ?.addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    Log.d(TAG, "linkWithCredential:success")
+                    val user: FirebaseUser? = task.result?.user
+                    updateUI(user)
+                } else {
+                    Log.w(
+                        TAG,
+                        "linkWithCredential:failure",
+                        task.exception
+                    )
+                    updateUI(null)
+                }
+            }
+    }
+
+    private fun firebaseAuthWithGoogleSignIn(acct: GoogleSignInAccount?) {
+        acct ?: return
+
+        Log.i(TAG, "firebaseAuthWithGoogleLink:" + acct.id)
 
         val credential = GoogleAuthProvider.getCredential(acct.idToken, null)
         auth.signInWithCredential(credential)
@@ -134,9 +180,17 @@ class FirebaseAuthActivity : AppCompatActivity(), View.OnClickListener {
 
     private fun updateUI(user: FirebaseUser?) {
         user ?: return
+        Log.i(TAG, "user")
         Log.i(TAG, user.uid)
+        Log.i(TAG, user.providerId)
         Log.i(TAG, user.email ?: "")
         Log.i(TAG, user.displayName)
+
+        Log.i(TAG, "providerData")
+        user.providerData.forEach {
+            Log.i(TAG, it.uid)
+            Log.i(TAG, it.providerId)
+        }
     }
 
     override fun onStart() {
@@ -148,6 +202,7 @@ class FirebaseAuthActivity : AppCompatActivity(), View.OnClickListener {
 
     companion object {
         private const val RC_SIGN_IN = 0x1000
+        private const val RC_LINK = 0x1001
         private const val TAG = "SocialLogin"
     }
 }
