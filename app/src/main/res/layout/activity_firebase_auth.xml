@@ -47,5 +47,23 @@
             android:text="Google Unlink"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/google_link" />
+
+        <Button
+            android:id="@+id/facebook_link"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:text="Facebook Link"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/google_unlink" />
+
+        <Button
+            android:id="@+id/facebook_unlink"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:text="Facebook Unlink"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/facebook_link" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

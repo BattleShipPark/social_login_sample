@@ -6,10 +6,7 @@ import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.battleshippark.socialloginsample.databinding.ActivityFirebaseAuthBinding
-import com.facebook.AccessToken
-import com.facebook.CallbackManager
-import com.facebook.FacebookCallback
-import com.facebook.FacebookException
+import com.facebook.*
 import com.facebook.login.LoginManager
 import com.facebook.login.LoginResult
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -31,6 +28,8 @@ class FirebaseAuthActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var callbackManager: CallbackManager
     private lateinit var auth: FirebaseAuth
 
+    private var isFacebookSignIn = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityFirebaseAuthBinding.inflate(layoutInflater)
@@ -40,6 +39,8 @@ class FirebaseAuthActivity : AppCompatActivity(), View.OnClickListener {
         binding.facebookLogin.setOnClickListener(this)
         binding.googleLink.setOnClickListener(this)
         binding.googleUnlink.setOnClickListener(this)
+        binding.facebookLink.setOnClickListener(this)
+        binding.facebookUnlink.setOnClickListener(this)
 
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(getString(R.string.default_web_client_id))
@@ -73,7 +74,25 @@ class FirebaseAuthActivity : AppCompatActivity(), View.OnClickListener {
             R.id.facebook_login -> facebookLogin()
             R.id.google_link -> googleLink()
             R.id.google_unlink -> googleUnlink()
+            R.id.facebook_link -> facebookLink()
+            R.id.facebook_unlink -> facebookUnlink()
         }
+    }
+
+    private fun facebookUnlink() {
+        auth.currentUser?.unlink(FacebookAuthProvider.PROVIDER_ID)
+            ?.addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    val currentUser: FirebaseUser? = auth.currentUser
+                    updateUI(currentUser)
+                }
+            }
+    }
+
+    private fun facebookLink() {
+        isFacebookSignIn = false
+        LoginManager.getInstance()
+            .logInWithReadPermissions(this@FirebaseAuthActivity, listOf("email"))
     }
 
     private fun googleUnlink() {
@@ -92,6 +111,7 @@ class FirebaseAuthActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun facebookLogin() {
+        isFacebookSignIn = true
         LoginManager.getInstance()
             .logInWithReadPermissions(this@FirebaseAuthActivity, listOf("email"))
     }
@@ -104,16 +124,22 @@ class FirebaseAuthActivity : AppCompatActivity(), View.OnClickListener {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        if (requestCode == RC_SIGN_IN) {
-            val task: Task<GoogleSignInAccount> = GoogleSignIn.getSignedInAccountFromIntent(data)
-            val account = task.getResult(ApiException::class.java)
-            firebaseAuthWithGoogleSignIn(account)
-        } else if (requestCode == RC_LINK) {
-            val task: Task<GoogleSignInAccount> = GoogleSignIn.getSignedInAccountFromIntent(data)
-            val account = task.getResult(ApiException::class.java)
-            firebaseAuthWithGoogleLink(account)
-        } else {
-            callbackManager.onActivityResult(requestCode, resultCode, data)
+        when {
+            requestCode == RC_SIGN_IN -> {
+                val task: Task<GoogleSignInAccount> =
+                    GoogleSignIn.getSignedInAccountFromIntent(data)
+                val account = task.getResult(ApiException::class.java)
+                firebaseAuthWithGoogleSignIn(account)
+            }
+            requestCode == RC_LINK -> {
+                val task: Task<GoogleSignInAccount> =
+                    GoogleSignIn.getSignedInAccountFromIntent(data)
+                val account = task.getResult(ApiException::class.java)
+                firebaseAuthWithGoogleLink(account)
+            }
+            FacebookSdk.isFacebookRequestCode(requestCode) -> {
+                callbackManager.onActivityResult(requestCode, resultCode, data)
+            }
         }
     }
 
@@ -164,18 +190,36 @@ class FirebaseAuthActivity : AppCompatActivity(), View.OnClickListener {
         token ?: return
 
         val credential = FacebookAuthProvider.getCredential(token.token)
-        auth.signInWithCredential(credential)
-            .addOnCompleteListener(this) { task ->
-                if (task.isSuccessful) {
-                    Log.d(TAG, "signInWithCredential:success")
-                    val user = auth.currentUser
-                    updateUI(user)
-                } else {
-                    // If sign in fails, display a message to the user.
-                    Log.w(TAG, "signInWithCredential:failure", task.exception)
-                    updateUI(null)
+        if (isFacebookSignIn) {
+            auth.signInWithCredential(credential)
+                .addOnCompleteListener(this) { task ->
+                    if (task.isSuccessful) {
+                        Log.d(TAG, "signInWithCredential:success")
+                        val user = auth.currentUser
+                        updateUI(user)
+                    } else {
+                        // If sign in fails, display a message to the user.
+                        Log.w(TAG, "signInWithCredential:failure", task.exception)
+                        updateUI(null)
+                    }
                 }
-            }
+        } else {
+            auth.currentUser?.linkWithCredential(credential)
+                ?.addOnCompleteListener(this) { task ->
+                    if (task.isSuccessful) {
+                        Log.d(TAG, "linkWithCredential:success")
+                        val user: FirebaseUser? = task.result?.user
+                        updateUI(user)
+                    } else {
+                        Log.w(
+                            TAG,
+                            "linkWithCredential:failure",
+                            task.exception
+                        )
+                        updateUI(null)
+                    }
+                }
+        }
     }
 
     private fun updateUI(user: FirebaseUser?) {
